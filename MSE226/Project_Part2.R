@@ -104,13 +104,21 @@ class_test_RMSE <- sqrt(mean((test$educ_bin - pred.test) ^ 2)) # 0.434
 
 #### 2/ Inference -- proceeding with the best regression model ####
 
-summary(model_reg_lasso) # not interpretable - maybe use one of the initial models we ran without lasso?
+coef(model_reg_lasso) # shows that nothing is dropped so we include all covariates in OLS
 
+# re-running OLS with log(distance) - already coded - and all covariates 
 
+model <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
+              home + urban + unemp + wage + distance + tuition + income + 
+              region, data = train)
+summary(model)
 
+# running model on test data: 
 
-
-
+model.test <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
+              home + urban + unemp + wage + distance + tuition + income + 
+              region, data = test)
+summary(model.test)
 
 
 
