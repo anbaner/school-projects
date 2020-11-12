@@ -21,6 +21,7 @@ library(ROCR)
 library(caret)
 library(arm)
 library(plotmo)
+library(boot)
 
 # Loading dataset - edit path
 college_dist <- read.csv("/Users/ankitabanerjea/Downloads/CollegeDistance.csv")
@@ -120,10 +121,35 @@ model.test <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
               region, data = test)
 summary(model.test)
 
+# Computing confidence intervals for each coefficient (of 5 coefficients) - train only.
+confint(model, "score", level = 0.95) # score
 
+confint(model, "distance", level = 0.95) # distance
 
+confint(model, "tuition", level = 0.95) # tuition
 
+confint(model, "mcollege", level = 0.95) # mcollege
 
+confint(model, "gender", level = 0.95) # gender
 
+#### 3/ Bootstrap ####
 
+coef.boot = function(data, indices) {
+  fm = lm(data = data[indices,], education ~ gender + ethnicity + score + fcollege + mcollege +
+            home + urban + unemp + wage + distance + tuition + income + region)
+  return(coef(fm))
+}
+boot.out = boot(train, coef.boot, 50000) # takes ~10 mins to run
+plot(boot.out, index = 3)
+
+# Computing bootstrap conf. intervals
+boot.ci(boot.out, conf = 0.95, type = "norm", index = 4) # on score
+
+boot.ci(boot.out, conf = 0.95, type = "norm", index = 11) # on distance
+
+boot.ci(boot.out, conf = 0.95, type = "norm", index = 12) # on tuition
+
+boot.ci(boot.out, conf = 0.95, type = "norm", index = 6) # on mcollege
+
+boot.ci(boot.out, conf = 0.95, type = "norm", index = 2) # on gender
 
