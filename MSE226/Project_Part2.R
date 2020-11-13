@@ -121,7 +121,7 @@ model.test <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
               region, data = test)
 summary(model.test)
 
-# Computing confidence intervals for each coefficient (of 5 coefficients) - train only.
+# Computing confidence intervals for each coefficient (of 5 coefficients) - train only, assumes normality.
 confint(model, "score", level = 0.95) # score
 
 confint(model, "distance", level = 0.95) # distance
@@ -140,16 +140,30 @@ coef.boot = function(data, indices) {
   return(coef(fm))
 }
 boot.out = boot(train, coef.boot, 50000) # takes ~10 mins to run
-plot(boot.out, index = 3)
 
-# Computing bootstrap conf. intervals
+# Computing bootstrap conf. intervals & plots for some coeffs
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 4) # on score
+plot(boot.out, index = 4)
 
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 11) # on distance
+plot(boot.out, index = 11)
 
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 12) # on tuition
+plot(boot.out, index = 12)
 
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 6) # on mcollege
+plot(boot.out, index = 6)
 
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 2) # on gender
+plot(boot.out, index = 2)
+
+#### 4/ Model with fewer covariates ####
+
+model1 <- lm(education ~ score + fcollege + mcollege + unemp + wage + 
+               distance + tuition + income, data = train)
+summary(model1) # R2 = 0.2625
+
+model2 <- lm(education ~ score + fcollege + mcollege + 
+               distance + tuition + income, data = train)
+summary(model2) # R2 = 0.2573
 
