@@ -22,6 +22,8 @@ library(caret)
 library(arm)
 library(plotmo)
 library(boot)
+library(stargazer)
+library(xtable)
 
 # Loading dataset - edit path
 college_dist <- read.csv("/Users/ankitabanerjea/Downloads/CollegeDistance.csv")
@@ -121,6 +123,9 @@ model.test <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
               region, data = test)
 summary(model.test)
 
+# regression table
+stargazer(model, model.test, title = "Results", align = TRUE) 
+
 # Computing confidence intervals for each coefficient (of 5 coefficients) - train only, assumes normality.
 confint(model, "score", level = 0.95) # score
 
@@ -157,13 +162,33 @@ plot(boot.out, index = 6)
 boot.ci(boot.out, conf = 0.95, type = "norm", index = 2) # on gender
 plot(boot.out, index = 2)
 
+# Visualize output from the bootstrap
+
+Names = names(boot.out$t0)
+SEs = sapply(data.frame(boot.out$t), sd)
+Coefs = as.numeric(boot.out$t0)
+zVals = Coefs / SEs
+Pvals = 2*pnorm(-abs(zVals))
+
+Formatted_Results = cbind(Names, Coefs, SEs, Pvals)
+print(xtable(Formatted_Results, type = "latex"), file = "filename.tex")
+
 #### 4/ Model with fewer covariates ####
 
 model1 <- lm(education ~ score + fcollege + mcollege + unemp + wage + 
                distance + tuition + income, data = train)
 summary(model1) # R2 = 0.2625
 
+model1.test <- lm(education ~ score + fcollege + mcollege + unemp + wage + 
+                    distance + tuition + income, data = test)
+
 model2 <- lm(education ~ score + fcollege + mcollege + 
                distance + tuition + income, data = train)
 summary(model2) # R2 = 0.2573
+
+model2.test <- lm(education ~ score + fcollege + mcollege + 
+                    distance + tuition + income, data = test)
+
+# regression table
+stargazer(model1, model1.test, model2, model2.test, title = "Results", align = TRUE)
 
