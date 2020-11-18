@@ -147,19 +147,19 @@ coef.boot = function(data, indices) {
 boot.out = boot(train, coef.boot, 50000) # takes ~10 mins to run
 
 # Computing bootstrap conf. intervals & plots for some coeffs
-boot.ci(boot.out, conf = 0.95, type = "norm", index = 4) # on score
+boot.ci(boot.out, conf = 0.95, type = "perc", index = 4) # on score
 plot(boot.out, index = 4)
 
-boot.ci(boot.out, conf = 0.95, type = "norm", index = 11) # on distance
+boot.ci(boot.out, conf = 0.95, type = "perc", index = 11) # on distance
 plot(boot.out, index = 11)
 
-boot.ci(boot.out, conf = 0.95, type = "norm", index = 12) # on tuition
+boot.ci(boot.out, conf = 0.95, type = "perc", index = 12) # on tuition
 plot(boot.out, index = 12)
 
-boot.ci(boot.out, conf = 0.95, type = "norm", index = 6) # on mcollege
+boot.ci(boot.out, conf = 0.95, type = "perc", index = 6) # on mcollege
 plot(boot.out, index = 6)
 
-boot.ci(boot.out, conf = 0.95, type = "norm", index = 2) # on gender
+boot.ci(boot.out, conf = 0.95, type = "perc", index = 2) # on gender
 plot(boot.out, index = 2)
 
 # Visualize output from the bootstrap
@@ -188,6 +188,10 @@ summary(model2) # R2 = 0.2573
 
 model2.test <- lm(education ~ score + fcollege + mcollege + 
                     distance + tuition + income, data = test)
+
+model3 <- lm(education ~ score + fcollege + mcollege + unemp + wage + unemp:wage +
+               distance + I(distance^2) + tuition + income + tuition:income, data = train)
+summary(model3)
 
 # regression table
 stargazer(model1, model1.test, model2, model2.test, title = "Results", align = TRUE)
