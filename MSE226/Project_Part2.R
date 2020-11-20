@@ -116,12 +116,34 @@ model <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
               region, data = train)
 summary(model)
 
+# correcting for multiple hypothesis testing on training data
+summary = tidy(model)
+summary$Bonferroni = p.adjust(summary$p.value, method="bonferroni")
+summary$BH= p.adjust(summary$p.value, method="BH")
+unadjusted = summary %>%
+  filter(p.value <= 0.05)
+Bonferroni = summary %>%
+  filter(Bonferroni <= 0.05)
+BH = summary %>%
+  filter(BH <= 0.05)
+
 # running model on test data: 
 
 model.test <- lm(education ~ gender + ethnicity + score + fcollege + mcollege +
               home + urban + unemp + wage + distance + tuition + income + 
               region, data = test)
 summary(model.test)
+
+# correcting for multiple hypothesis testing on test data
+summary.test = tidy(model.test)
+summary.test$Bonferroni = p.adjust(summary.test$p.value, method="bonferroni")
+summary.test$BH= p.adjust(summary.test$p.value, method="BH")
+unadjusted.test = summary.test %>%
+  filter(p.value <= 0.05)
+Bonferroni.test = summary.test %>%
+  filter(Bonferroni <= 0.05)
+BH.test = summary.test %>%
+  filter(BH <= 0.05)
 
 # regression table
 stargazer(model, model.test, title = "Results", align = TRUE) 
@@ -134,8 +156,12 @@ confint(model, "distance", level = 0.95) # distance
 confint(model, "tuition", level = 0.95) # tuition
 
 confint(model, "mcollege", level = 0.95) # mcollege
+0.398 + 1.96*(0.164)
+0.398 - 1.96*(0.164)
 
-confint(model, "gender", level = 0.95) # gender
+confint(model, "gender", level = 0.95) # gendermale
+-0.187 + 1.96*(0.0992)
+-0.187 - 1.96*(0.0992)
 
 #### 3/ Bootstrap ####
 
